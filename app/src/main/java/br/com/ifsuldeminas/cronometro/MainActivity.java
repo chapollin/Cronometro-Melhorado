@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -18,6 +19,19 @@ import android.widget.Toast;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -48,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
         btnStartPause = findViewById(R.id.btnStartPause);
         btnReset = findViewById(R.id.btnReset);
         btnSave = findViewById(R.id.btnSave);
+        View btnHora2 = findViewById(R.id.button2);
 
         handler = new Handler();
         runnable = new Runnable() {
@@ -77,12 +92,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        btnReset.setOnClickListener(new View.OnClickListener() {
+        btnHora2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                resetTimer();
+                new GetTimeAsyncTask().execute();
             }
         });
+
 
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -211,5 +227,65 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         handler.removeCallbacks(runnable);
     }
-    
+
+    private class GetTimeAsyncTask extends AsyncTask<Void, Void, String> {
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            OkHttpClient client = new OkHttpClient();
+
+            // Criar a solicitação GET
+            Request request = new Request.Builder()
+                    .url("https://worldtimeapi.org/api/ip")
+                    .build();
+
+            try {
+                // Executar a solicitação e obter a resposta
+                Response response = client.newCall(request).execute();
+
+                // Verificar se a resposta é bem-sucedida
+                if (response.isSuccessful()) {
+                    // Extrair a hora atual da resposta
+                    String jsonData = response.body().string();
+                    JSONObject jsonObject = new JSONObject(jsonData);
+                    String currentTime = jsonObject.getString("datetime");
+
+                    return currentTime;
+                }
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String currentTime) {
+            super.onPostExecute(currentTime);
+
+            if (currentTime != null) {
+                // Mostrar a hora atual em um Toast
+                Toast.makeText(MainActivity.this, "Hora atual: " + formatarHora(currentTime), Toast.LENGTH_LONG).show();
+            } else {
+                // Mostrar uma mensagem de erro caso não seja possível obter a hora atual
+                Toast.makeText(MainActivity.this, "Falha ao obter a hora atual", Toast.LENGTH_LONG).show();
+            }
+        }
+
+        private String formatarHora(String hora) {
+            SimpleDateFormat formatoEntrada = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSZ", Locale.getDefault());
+            SimpleDateFormat formatoSaida = new SimpleDateFormat("HH 'horas' mm 'minutos' ss 'segundos'", Locale.getDefault());
+
+            try {
+                Date data = formatoEntrada.parse(hora);
+                return formatoSaida.format(data);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            return hora;
+        }
+
+    }
+
 }
