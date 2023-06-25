@@ -92,6 +92,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        btnReset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                resetTimer();
+            }
+        });
+
         btnHora2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
