@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class SettingsActivity extends AppCompatActivity {
 
-    private CheckBox checkboxMilliseconds;
+    private CheckBox checkboxMilliseconds; // CheckBox para controlar a exibição dos milissegundos
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,16 +18,19 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
 
         checkboxMilliseconds = findViewById(R.id.checkboxMilliseconds);
-        // Carregar o estado atual do checkbox a partir das preferências compartilhadas
+
+        // Carregar o estado atual do checkbox a partir das sharedPreferences
         SharedPreferences sharedPreferences = getSharedPreferences("sharedPreferences", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         String k = sharedPreferences.getString("mostrarMilliseconds", "deu ruim");
         checkboxMilliseconds.setChecked(!Boolean.valueOf(k));
 
-        //Altera a exibição do cronometro
+        // Altera a exibição do cronômetro quando o estado do CheckBox é alterado
         checkboxMilliseconds.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            editor.putString("mostrarMilliseconds",String.valueOf(!checkboxMilliseconds.isChecked()));
-            editor.commit();
+            editor.putString("mostrarMilliseconds", String.valueOf(!checkboxMilliseconds.isChecked())); // Armazena o estado do CheckBox nas sharedPreferences
+            editor.commit(); // Aplica as alterações no SharedPreferences
+
+            Toast.makeText(SettingsActivity.this, "Exibição de milissegundos alterada", Toast.LENGTH_SHORT).show();
         });
     }
 }

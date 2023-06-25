@@ -20,18 +20,18 @@ public class SavedTimesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_saved_times);
 
         listView = findViewById(R.id.listView);
-        savedTimesList = new ArrayList<>();
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, savedTimesList);
-        listView.setAdapter(adapter);
+        savedTimesList = new ArrayList<>(); // Inicializa a lista de tempos salvos
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, savedTimesList); // Cria um adaptador para a lista de tempos salvos
+        listView.setAdapter(adapter); // Define o adaptador como o adaptador do ListView
 
         // Recuperar os tempos salvos do SharedPreferences
         SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
-        int count = sharedPreferences.getInt("count", 0);
+        int count = sharedPreferences.getInt("count", 0); // Obtém a quantidade de tempos salvos
         for (int i = 0; i < count; i++) {
-            String time = sharedPreferences.getString("time_" + i, "");
-            savedTimesList.add(time);
+            String time = sharedPreferences.getString("time_" + i, ""); // Obtém o tempo salvo do SharedPreferences
+            savedTimesList.add(time); // Adiciona o tempo à lista de tempos salvos
         }
 
-        adapter.notifyDataSetChanged();
+        adapter.notifyDataSetChanged(); // Notifica o adaptador de que houve alteração nos dados da lista
     }
 }
